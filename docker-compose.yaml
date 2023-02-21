@@ -1,4 +1,5 @@
 version: "3.9"
+name: "vc"
 services:
   vc:
     build:
@@ -6,6 +7,8 @@ services:
         - "GOPROXY=https://goproxy.cn,direct"
       context: .
       dockerfile: Dockerfile
+      tags:
+        - "dowenliu/vc:latest"
     pull_policy: build
     ports:
       - "3002:3001"
@@ -24,7 +27,7 @@ services:
       - "VC_CHECK_PERIOD=60"
       - "V2RAY_ASSET=/opt/v2ray/asset"
       - "V2RAY_BIN=/opt/v2ray/v2ray"
-      - "VC_CHECK_TIMEOUT=5"
+      - "VC_CHECK_TIMEOUT=10"
       - "VC_CHECK_URL=https://httpbin.org/get"
       - "VC_API_PORT=3001"
     restart: always
