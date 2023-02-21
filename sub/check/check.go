@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/exp/slog"
 	"net/http"
 	"net/url"
@@ -37,7 +38,25 @@ func init() {
 	}
 }
 
-func check(ctx context.Context, ep sub.Endpoint) bool {
+var epCheckCount = prometheus.NewCounterVec(prometheus.CounterOpts{
+	Name: "vc_sub_ep_check_total",
+	Help: "subscription endpoint check result",
+}, []string{"tag", "ok"})
+var epCheckCost = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+	Name: "vc_sub_ep_check_millis",
+	Help: "subscription endpoint check costs",
+}, []string{"tag"})
+
+func init() {
+	prometheus.MustRegister(epCheckCount, epCheckCount)
+}
+
+func check(ctx context.Context, ep sub.Endpoint) (ok bool) {
+	start := time.Now()
+	defer func() {
+		epCheckCost.WithLabelValues(ep.Tag()).Set(float64(time.Since(start).Milliseconds()))
+		epCheckCount.WithLabelValues(ep.Tag(), strconv.FormatBool(ok)).Inc()
+	}()
 	tr := &http.Transport{
 		Proxy: func(_ *http.Request) (*url.URL, error) {
 			return url.Parse(fmt.Sprintf("socks5://127.0.0.1:%d", ep.CheckPort()))

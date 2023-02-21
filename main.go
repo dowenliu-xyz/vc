@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 	"net/http"
@@ -79,15 +78,6 @@ var (
 	lastSubEps []sub.Endpoint
 	lastOkEps  []sub.Endpoint
 )
-
-var epCheckCount = prometheus.NewCounterVec(prometheus.CounterOpts{
-	Name: "vc_sub_ep_check",
-	Help: "subscription endpoint check result",
-}, []string{"tag", "ok"})
-
-func init() {
-	prometheus.MustRegister(epCheckCount)
-}
 
 func main() {
 	slog.Info(fmt.Sprintf("starting with config %s", v2rayConfig), "with-sub", subUrl != "", "with-check", enableCheck)
@@ -281,20 +271,12 @@ func doCheck(ctx context.Context, filename string) bool {
 		return false
 	}
 	newEps := check.Check(ctx, lastSubEps)
-	okMap := make(map[string]bool, len(lastSubEps))
-	for _, ep := range lastSubEps {
-		okMap[ep.Tag()] = false
-	}
 	lastOk, newOk := make([]string, len(lastOkEps)), make([]string, len(newEps))
 	for i, ep := range lastOkEps {
 		lastOk[i] = ep.Share()
 	}
 	for i, ep := range newEps {
 		newOk[i] = ep.Share()
-		okMap[ep.Tag()] = true
-	}
-	for tag, ok := range okMap {
-		epCheckCount.WithLabelValues(tag, strconv.FormatBool(ok)).Inc()
 	}
 	if reflect.DeepEqual(newOk, lastOk) {
 		return false
