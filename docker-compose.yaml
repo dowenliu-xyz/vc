@@ -19,7 +19,7 @@ services:
       - .secret/env
     environment:
       - "V2RAY_CONFIG=/opt/v2ray/config.json"
-      - "VC_SUB_URL="
+      # - "VC_SUB_URL="
       - "VC_SUB_CHECK=on"
       - "VC_CHECK_PERIOD=60"
       - "V2RAY_ASSET=/opt/v2ray/asset"
