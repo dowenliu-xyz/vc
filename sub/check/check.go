@@ -48,7 +48,7 @@ var epCheckCost = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 }, []string{"tag"})
 
 func init() {
-	prometheus.MustRegister(epCheckCount, epCheckCount)
+	prometheus.MustRegister(epCheckCount, epCheckCost)
 }
 
 func check(ctx context.Context, ep sub.Endpoint) (ok bool) {
