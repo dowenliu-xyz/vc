@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  vc:
+    build:
+      args:
+        - "GOPROXY=https://goproxy.cn,direct"
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
+    ports:
+      - "3002:3001"
+      - "1082:1081"
+      - "8002:8001"
+    volumes:
+      - type: bind
+        source: ".secret/config.json"
+        target: "/opt/v2ray/config.json"
+    env_file:
+      - .secret/env
+    environment:
+      - "V2RAY_CONFIG=/opt/v2ray/config.json"
+      - "VC_SUB_URL="
+      - "VC_SUB_CHECK=on"
+      - "VC_CHECK_PERIOD=60"
+      - "V2RAY_ASSET=/opt/v2ray/asset"
+      - "V2RAY_BIN=/opt/v2ray/v2ray"
+      - "VC_CHECK_TIMEOUT=5"
+      - "VC_CHECK_URL=https://httpbin.org/get"
+      - "VC_API_PORT=3001"
+    restart: always
+networks:
+  default:
+    name: vc
+    ipam:
+      config:
+        - subnet: "172.31.0.0/16"
