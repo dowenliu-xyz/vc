@@ -31,6 +31,18 @@ services:
       - "VC_CHECK_URL=https://httpbin.org/get"
       - "VC_API_PORT=3001"
     restart: always
+  prom:
+    image: prom/prometheus:latest
+    restart: always
+    ports:
+      - "9091:9090"
+    volumes:
+      - type: bind
+        source: prom/data
+        target: /prometheus
+      - type: bind
+        source: prom/prometheus.yml
+        target: /etc/prometheus/prometheus.yml
 networks:
   default:
     name: vc
