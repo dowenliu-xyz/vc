@@ -2,7 +2,6 @@ version: "3.9"
 services:
   vc:
     image: dowenliu/vc:latest
-    pull_policy: build
     ports:
       - "3002:3001"
       - "1082:1081"
